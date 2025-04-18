@@ -1,0 +1,22 @@
+INFO  : [ Deleted blacklisted directory: /home/maaru/Documents/dotfiles/dist/dotfiles/.git ] 19.04.2025 04:56:46
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/__pycache__ ] 19.04.2025 04:56:46
+ERR 󰅚 : [ can't remove objects where .git ] 19.04.2025 04:59:44
+ERR 󰅚 : [ can't remove objects where .git ] 19.04.2025 05:00:02
+INFO  : [ Deleted blacklisted directory: /home/maaru/Documents/dotfiles/dist/dotfiles/.git ] 19.04.2025 05:01:03
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/__pycache__ ] 19.04.2025 05:01:03
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.config/.git ] 19.04.2025 05:03:00
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.local/.git ] 19.04.2025 05:03:00
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.config/__pycache__ ] 19.04.2025 05:03:00
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.local/__pycache__ ] 19.04.2025 05:03:00
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.config/.git ] 19.04.2025 05:04:13
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.local/.git ] 19.04.2025 05:04:13
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.config/__pycache__ ] 19.04.2025 05:04:13
+WARN 󰀪 : [ No directory to delete or not a dir: /home/maaru/Documents/dotfiles/dist/dotfiles/.local/__pycache__ ] 19.04.2025 05:04:13
+INFO  : [ Copied /home/maaru/.config/yazi → /home/maaru/Documents/dotfiles/dist/dotfiles/.config/yazi ] 19.04.2025 05:12:12
+INFO  : [ Copied /home/maaru/.local/bin → /home/maaru/Documents/dotfiles/dist/dotfiles/.local/bin ] 19.04.2025 05:12:12
+INFO  : [ Copied /home/maaru/.themes → /home/maaru/Documents/dotfiles/dist/dotfiles/.themes ] 19.04.2025 05:12:12
+INFO  : [ Copied /home/maaru/.config/yazi → /home/maaru/Documents/dotfiles/dist/dotfiles/.config/yazi ] 19.04.2025 05:15:24
+INFO  : [ Copied /home/maaru/.local/bin → /home/maaru/Documents/dotfiles/dist/dotfiles/.local/bin ] 19.04.2025 05:15:24
+INFO  : [ Copied /home/maaru/.themes → /home/maaru/Documents/dotfiles/dist/dotfiles/.themes ] 19.04.2025 05:15:24
+ERR 󰅚 : [ can't remove objects where .git ] 19.04.2025 05:38:33
+ERR 󰅚 : [ can't remove objects where .git ] 19.04.2025 05:49:07

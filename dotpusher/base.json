@@ -1,0 +1,24 @@
+{
+  "dotfiles": {
+    "dirname": "dotfiles",
+    "url": "git@github.com:maarutan/dotfiles.git",
+    "branch": "master",
+    "push_object": {
+      ".config": {
+        "yazi": "/home/maaru/.config/yazi"
+      },
+      ".local": {
+        "bin": "/home/maaru/.local/bin"
+      },
+      ".themes": "/home/maaru/.themes"
+    }
+  },
+  "push_more": {
+    "1": {
+      "dirname": "",
+      "url": "",
+      "branch": "",
+      "push_object": {}
+    }
+  }
+}
