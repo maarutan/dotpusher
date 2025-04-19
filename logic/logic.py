@@ -496,7 +496,7 @@ class BaseJsonHandler:
             col = Colors()
             print(f"{col.OKGREEN}{art_git_exists}{col.ENDC}")
             print("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n")
-            rm_all_without_git()
+            rm_all_without_git(ExistDotgit=False)
             copy_base_push_json_paths()
             g.add()
             g.commit(name="no massage | script push", noconfirm=True)
@@ -514,7 +514,7 @@ class BaseJsonHandler:
             # if not path_exists(path_dir) and not path_exists(path_dir / ".git"):
             RmDir(path_dir)
             g.clone(f"{self.url} {path_dir}")
-            rm_all_without_git(ExistDotgit=False)
+            rm_all_without_git()
             copy_base_push_json_paths()
             g.add()
             g.commit(name="no massage | script push", noconfirm=True)

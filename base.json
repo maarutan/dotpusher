@@ -5,12 +5,44 @@
     "branch": "master",
     "push_object": {
       ".config": {
-        "yazi": "/home/maaru/.config/yazi"
+        "kitty": "/home/maaru/.config/kitty",
+        "zsh": "/home/maaru/.config/zsh",
+        "btop": "/home/maaru/.config/btop",
+        "nvim": "/home/maaru/.config/nvim",
+        "hypr": "/home/maaru/.config/hypr",
+        "nwg-dock-hyprland": "/home/maaru/.config/nwg-dock-hyprland",
+        "waybar": "/home/maaru/.config/waybar",
+        "paru": "/home/maaru/.config/paru",
+        "declarative_package": "/home/maaru/.config/declarative_package",
+        "fastfetch": "/home/maaru/.config/fastfetch",
+        "gtk-2.0": "/home/maaru/.config/gtk-2.0",
+        "gtk-3.0": "/home/maaru/.config/gtk-3.0",
+        "neofetch": "/home/maaru/.config/neofetch",
+        "rofi": "/home/maaru/.config/rofi",
+        "picom": "/home/maaru/.config/picom",
+        "qt5ct": "/home/maaru/.config/qt5ct",
+        "qt6ct": "/home/maaru/.config/qt6ct",
+        "yay": "/home/maaru/.config/yay",
+        "yazi": "/home/maaru/.config/yazi",
+        "dunst": "/home/maaru/.config/dunst",
+        "cava": "/home/maaru/.config/cava",
+        "flameshot": "/home/maaru/.config/flameshot",
+        "xsettingsd": "/home/maaru/.config/xsettingsd",
+        "mimeapps.list": "/home/maaru/.config/mimeapps.list",
+        "user-dirs.dirs": "/home/maaru/.config/user-dirs.dirs",
+        "user-dirs.locale": "/home/maaru/.config/user-dirs.locale"
       },
       ".local": {
-        "bin": "/home/maaru/.local/bin"
+        "bin": "/home/maaru/.local/bin",
+        "plank_themes": "/home/maaru/.local/share/plank"
       },
-      ".themes": "/home/maaru/.themes"
+      ".themes": "/home/maaru/.themes",
+      "Pictures": {
+        "mcrfScins": "/home/maaru/Pictures/mcrfScins",
+        "profile": "/home/maaru/Pictures/profile"
+      },
+      ".viebrc": "/home/maaru/.viebrc",
+      ".zshrc": "/home/maaru/.zshrc"
     }
   },
   "push_more": {
