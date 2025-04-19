@@ -4,6 +4,9 @@
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
+logic/__pycache__
+.current.log
+
 *.py[cod]
 *$py.class
 
