@@ -19,7 +19,6 @@
         "gtk-3.0": "/home/maaru/.config/gtk-3.0",
         "neofetch": "/home/maaru/.config/neofetch",
         "rofi": "/home/maaru/.config/rofi",
-        "picom": "/home/maaru/.config/picom",
         "qt5ct": "/home/maaru/.config/qt5ct",
         "qt6ct": "/home/maaru/.config/qt6ct",
         "yay": "/home/maaru/.config/yay",
@@ -47,10 +46,26 @@
   },
   "push_more": {
     "1": {
-      "dirname": "",
-      "url": "",
-      "branch": "",
-      "push_object": {}
+      "dirname": "yamoon",
+      "url": "git@github.com:maarutan/yamoon.git",
+      "branch": "main",
+      "inside": true,
+      "push_object": {
+        ".config": {
+          "yazi": "/home/maaru/.config/yazi"
+        }
+      }
+    },
+    "2": {
+      "dirname": "moonvim",
+      "url": "git@github.com:maarutan/moonvim.git",
+      "branch": "main",
+      "inside": true,
+      "push_object": {
+        ".config": {
+          "nvim": "/home/maaru/.config/nvim"
+        }
+      }
     }
   }
 }

@@ -12,6 +12,8 @@ j = BaseJsonHandler(
     dirname="dotfiles",
     url="git@github.com:maarutan/dotfiles.git",
     branch="master",
+    noconfirm=True,
+    inside=True,
     # -------------
     gitignore=[
         ".git/",
@@ -26,6 +28,7 @@ j = BaseJsonHandler(
 
 j.base_push(
     # ------------------------------------------
+    # push_object={}
     push_object={
         ".config": {
             "kitty": f"{HOME}/.config/kitty",
@@ -42,7 +45,6 @@ j.base_push(
             "gtk-3.0": f"{HOME}/.config/gtk-3.0",
             "neofetch": f"{HOME}/.config/neofetch",
             "rofi": f"{HOME}/.config/rofi",
-            "picom": f"{HOME}/.config/picom",
             "qt5ct": f"{HOME}/.config/qt5ct",
             "qt6ct": f"{HOME}/.config/qt6ct",
             "yay": f"{HOME}/.config/yay",
@@ -78,10 +80,29 @@ j.base_push(
 
 j.push_more(
     {
-        "dirname": "",
-        "url": "",
-        "branch": "",
+        "dirname": "yamoon",
+        "url": "git@github.com:maarutan/yamoon.git",
+        "branch": "main",
+        "inside": True,
         # ------------------------------------------
-        "push_object": {},
+        # "push_object": {}
+        "push_object": {
+            ".config": {
+                "yazi": f"{HOME}/.config/yazi",
+            }
+        },
+    },
+    {
+        "dirname": "moonvim",
+        "url": "git@github.com:maarutan/moonvim.git",
+        "branch": "main",
+        "inside": True,
+        # ------------------------------------------
+        # "push_object": {}
+        "push_object": {
+            ".config": {
+                "nvim": f"{HOME}/.config/nvim",
+            }
+        },
     },
 )

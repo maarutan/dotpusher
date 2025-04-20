@@ -303,17 +303,17 @@ class Git:
 
     def commit(
         self,
-        name: str = "",
+        massage: str = "",
         noconfirm: bool = False,
     ) -> None:
         col = self.col
         try:
             if noconfirm:
                 print(
-                    f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}commit -m '{name}'{col.ENDC}"
+                    f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}commit -m '{massage}'{col.ENDC}"
                 )
                 print()
-                Shell(f"git commit -m '{name}'")
+                Shell(f"git commit -m '{massage}'")
             else:
                 i = input(
                     f"{col.YELLOW}!!! {col.OKCYAN}{col.UNDERLINE}your message for commit :D ?\n{col.YELLOW} ~~> : {col.ENDC}"
@@ -343,6 +343,8 @@ class BaseJsonHandler:
         dirname: str,
         url: str,
         branch: str,
+        noconfirm: bool,
+        inside: bool,
         gitignore: list,
         blacklist: list,
     ) -> None:
@@ -351,7 +353,17 @@ class BaseJsonHandler:
         self.branch = branch
         self.gitignore = gitignore
         self.blacklist = blacklist
-        self.base_push_handler()
+        self.noconfirm = noconfirm
+        self.inside = inside
+
+        try:
+            self.base_push_handler()
+        except Exception as e:
+            logger("error", f"base_push_handler failed: {e}")
+        try:
+            self.more_push_handler()
+        except Exception as e:
+            logger("error", f"more_push_handler failed: {e}")
 
     def base_push(
         self,
@@ -382,7 +394,10 @@ class BaseJsonHandler:
         except Exception as e:
             logger("error", f"dump_json failed: {e}")
 
-    def push_more(self, *repos) -> None:
+    def push_more(
+        self,
+        *repos: dict,
+    ) -> None:
         j = baseJson()
         data = j.get_data() if path_exists(BASEJSON) else {}
 
@@ -401,127 +416,193 @@ class BaseJsonHandler:
 
         j.write(data)
 
-    def base_push_handler(self) -> None:
+    def push_logic(
+        self,
+        dirname: str,
+        inside: bool,
+        branch: str,
+        url: str,
+        push_object: dict,
+        blacklist: list,
+        gitignore: list,
+        noconfirm: bool,
+    ) -> None:
         g = Git()
-        path_dir = HEREDIR / "dist" / self.dirname
-        Path(path_dir).mkdir(exist_ok=True, parents=True)
-        listD = ListDir(path_dir)
-        j = baseJson()
-        data = j.get_data()
-        dir_object = data[self.dirname]["push_object"]
-
         dict_keys = []
         dirs = []
         files = []
+        path_dir = DIST / dirname
+        Path(path_dir).mkdir(exist_ok=True, parents=True)
+        listD = ListDir(path_dir)
 
-        def rm_all_without_git(ExistDotgit: bool = True) -> None:
-            Chdir(path_dir)
-            if not ExistDotgit:
-                g.beginning()
-            for i in listD:
-                if i != ".git":
-                    RmDir(path_dir / i)
-                    RmFile(path_dir / i)
-                else:
-                    logger("error", f"can't remove objects where .git")
+        if push_object == {}:
+            logger("error", "push_object is empty")
+        else:
 
-        def copy_base_push_json_paths() -> None | list:
-            for key, value in dir_object.items():
-                if isinstance(value, dict):
-                    data = key, value
-                    dict_keys.append(data)
-                elif isinstance(value, str):
-                    p = Path(value)
-                    if p.is_dir():
-                        dirs.append(key)
-                    elif p.is_file():
-                        files.append(key)
+            def rm_all_without_git(ExistDotgit: bool = True) -> None:
+                Chdir(path_dir)
+                if not ExistDotgit:
+                    g.beginning()
+                for i in listD:
+                    if i != ".git":
+                        RmDir(path_dir / i)
+                        RmFile(path_dir / i)
                     else:
+                        logger("error", f"can't remove objects where .git")
+
+            def copy_base_push_json_paths() -> None | list:
+                for key, value in push_object.items():
+                    if isinstance(value, dict):
+                        data = key, value
+                        dict_keys.append(data)
+                    elif isinstance(value, str):
+                        p = Path(value)
+                        if p.is_dir():
+                            dirs.append(key)
+                        elif p.is_file():
+                            files.append(key)
+                        else:
+                            logger(
+                                "error",
+                                f"Unknown or non-existent path for '{key}': {value}",
+                            )
+                    else:
+                        logger("error", f"Unknown type for '{key}': {type(value)}")
+
+                def CopyTreeSafe(src: Path, dst: Path, inside: bool = False) -> None:
+                    src = src.resolve()
+                    dst = dst.resolve()
+
+                    if dst == src or dst.is_relative_to(src):
                         logger(
                             "error",
-                            f"Unknown or non-existent path for '{key}': {value}",
+                            f"Skipping: trying to copy {src} into its subdir {dst}",
                         )
-                else:
-                    logger("error", f"Unknown type for '{key}': {type(value)}")
+                        return
 
-            def CopyTreeSafe(src: Path, dst: Path) -> None:
-                src = src.resolve()
-                dst = dst.resolve()
+                    def ignore_git_dirs(dir, contents):
+                        ignored = []
+                        for entry in contents:
+                            if entry in blacklist:
+                                ignored.append(entry)
+                        return ignored
 
-                if dst == src or dst.is_relative_to(src):
-                    logger(
-                        "error", f"Skipping: trying to copy {src} into its subdir {dst}"
-                    )
-                    return
+                    try:
+                        if inside and src.is_dir():
+                            for item in src.iterdir():
+                                target = dst / item.name
+                                if item.is_dir():
+                                    shutil.copytree(
+                                        item,
+                                        target,
+                                        dirs_exist_ok=True,
+                                        ignore=ignore_git_dirs,
+                                    )
+                                else:
+                                    shutil.copy2(item, target)
+                        else:
+                            shutil.copytree(
+                                src, dst, dirs_exist_ok=True, ignore=ignore_git_dirs
+                            )
 
-                def ignore_git_dirs(dir, contents):
-                    ignored = []
-                    for entry in contents:
-                        if entry in self.blacklist:
-                            ignored.append(entry)
-                    return ignored
+                    except Exception as e:
+                        logger("error", f"Failed to copy {src} → {dst}: {e}")
 
-                try:
-                    shutil.copytree(
-                        src, dst, dirs_exist_ok=True, ignore=ignore_git_dirs
-                    )
-                except Exception as e:
-                    logger("error", f"Failed to copy {src} → {dst}: {e}")
+                for parent_dir, children in dict_keys:
+                    for child_name, full_path in children.items():
+                        src = Path(full_path)
+                        dst = path_dir / parent_dir / child_name
+                        CopyTreeSafe(src, dst)
 
-            for parent_dir, children in dict_keys:
-                for child_name, full_path in children.items():
-                    src = Path(full_path)
-                    dst = path_dir / parent_dir / child_name
-                    CopyTreeSafe(src, dst)
+                for d in dirs:
+                    path = path_dir / d
+                    CopyTreeSafe(HOME / d, path)
 
-            for d in dirs:
-                path = path_dir / d
-                CopyTreeSafe(HOME / d, path)
+                for f in files:
+                    path = path_dir / f
+                    CopyFile(HOME / f, path)
 
-            for f in files:
-                path = path_dir / f
-                CopyFile(HOME / f, path)
+                git_ignore_path = path_dir / ".gitignore"
 
-            git_ignore_path = path_dir / ".gitignore"
-            content = "\n".join(self.gitignore)
-            write_file(git_ignore_path, content)
+                content = "\n".join(gitignore)
+                write_file(git_ignore_path, content)
 
-        art_git_exists = """
-            ┌─┐┬┌┬┐  ┌─┐─┐ ┬┬┌─┐┌┬┐
-            │ ┬│ │   ├┤ ┌┴┬┘│└─┐ │ 
-           o└─┘┴ ┴   └─┘┴ └─┴└─┘ ┴ 
-        """
-
-        if path_exists(path_dir / ".git"):
-            col = Colors()
-            print(f"{col.OKGREEN}{art_git_exists}{col.ENDC}")
-            print("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n")
-            rm_all_without_git(ExistDotgit=False)
-            copy_base_push_json_paths()
-            g.add()
-            g.commit(name="no massage | script push", noconfirm=True)
-            print()
-            g.push()
-            print()
-            print("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n")
-        else:
-            art_git_clone = """
-                ┌─┐┬┌┬┐  ┌─┐┬  ┌─┐┌┐┌┌─┐
-                │ ┬│ │   │  │  │ ││││├┤ 
-                └─┘┴ ┴   └─┘┴─┘└─┘┘└┘└─┘
+            art_git_exists = """
+                ┌─┐┬┌┬┐  ┌─┐─┐ ┬┬┌─┐┌┬┐
+                │ ┬│ │   ├┤ ┌┴┬┘│└─┐ │ 
+               o└─┘┴ ┴   └─┘┴ └─┴└─┘ ┴ 
             """
-            print("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n")
-            # if not path_exists(path_dir) and not path_exists(path_dir / ".git"):
-            RmDir(path_dir)
-            g.clone(f"{self.url} {path_dir}")
-            rm_all_without_git()
-            copy_base_push_json_paths()
-            g.add()
-            g.commit(name="no massage | script push", noconfirm=True)
-            print()
-            g.push()
-            print()
-            print("▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁\n")
+            line = "▁" * 50 + "\n"
+            if path_exists(path_dir / ".git"):
+                col = Colors()
+                print(f"{col.OKGREEN}{art_git_exists}{col.ENDC}")
+                print(line)
+                rm_all_without_git(ExistDotgit=False)
+                copy_base_push_json_paths()
+                g.add()
+                g.commit(massage="no massage | script push", noconfirm=noconfirm)
+                print()
+                g.push()
+                print()
+                print(line)
+            else:
+                col = Colors()
+                art_git_clone = """
+                    ┌─┐┬┌┬┐  ┌─┐┬  ┌─┐┌┐┌┌─┐
+                    │ ┬│ │   │  │  │ ││││├┤ 
+                    └─┘┴ ┴   └─┘┴─┘└─┘┘└┘└─┘
+                """
+                print(line)
+                RmDir(path_dir)
+                print(f"{col.OKGREEN}{art_git_clone}{col.ENDC}")
+                g.clone(f"{url} {path_dir}")
+                rm_all_without_git()
+                copy_base_push_json_paths()
+                g.add()
+                g.commit(massage="no massage | script push", noconfirm=noconfirm)
+                print()
+                g.push()
+                print()
+                print(line)
+
+    def more_push_handler(self) -> None:
+        j = baseJson()
+        data = j.get_data()
+        pm_data = data["push_more"]
+
+        pm_data_id = []
+        for k, v in pm_data.items():
+            pm_data_id.append(k)
+
+        for i in pm_data_id:
+            dirname = f"{pm_data[i]['dirname']}"
+            url = f"{pm_data[i]['url']}"
+            branch = f"{pm_data[i]['branch']}"
+            push_object = dict(pm_data[i]["push_object"])
+            self.push_logic(
+                dirname=dirname,
+                url=url,
+                branch=branch,
+                push_object=push_object,
+                noconfirm=self.noconfirm,
+                gitignore=self.gitignore,
+                blacklist=self.blacklist,
+                inside=self.inside,
+            )
+
+    def base_push_handler(self) -> None:
+        j = baseJson()
+        data = j.get_data()
+        self.push_logic(
+            dirname=self.dirname,
+            url=self.url,
+            branch=self.branch,
+            push_object=data[self.dirname]["push_object"],
+            noconfirm=self.noconfirm,
+            gitignore=self.gitignore,
+            blacklist=self.blacklist,
+            inside=self.inside,
+        )
 
 
 def arguments() -> None:
