@@ -437,133 +437,143 @@ class BaseJsonHandler:
 
         if push_object == {}:
             logger("error", "push_object is empty")
-        else:
+            return
 
-            def rm_all_without_git(ExistDotgit: bool = True) -> None:
-                Chdir(path_dir)
-                if not ExistDotgit:
-                    g.beginning()
-                for i in listD:
-                    if i != ".git":
-                        RmDir(path_dir / i)
-                        RmFile(path_dir / i)
+        def rm_all_without_git(ExistDotgit: bool = True) -> None:
+            Chdir(path_dir)
+            if not ExistDotgit:
+                g.beginning()
+            for i in listD:
+                if i != ".git":
+                    RmDir(path_dir / i)
+                    RmFile(path_dir / i)
+                else:
+                    logger("error", f"can't remove objects where .git")
+
+        def copy_base_push_json_paths() -> None:
+            for key, value in push_object.items():
+                if isinstance(value, dict):
+                    data = key, value
+                    dict_keys.append(data)
+                elif isinstance(value, str):
+                    p = Path(value)
+                    if p.is_dir():
+                        dirs.append(key)
+                    elif p.is_file():
+                        files.append(key)
                     else:
-                        logger("error", f"can't remove objects where .git")
-
-            def copy_base_push_json_paths() -> None | list:
-                for key, value in push_object.items():
-                    if isinstance(value, dict):
-                        data = key, value
-                        dict_keys.append(data)
-                    elif isinstance(value, str):
-                        p = Path(value)
-                        if p.is_dir():
-                            dirs.append(key)
-                        elif p.is_file():
-                            files.append(key)
-                        else:
-                            logger(
-                                "error",
-                                f"Unknown or non-existent path for '{key}': {value}",
-                            )
-                    else:
-                        logger("error", f"Unknown type for '{key}': {type(value)}")
-
-                def CopyTreeSafe(src: Path, dst: Path, inside: bool = False) -> None:
-                    src = src.resolve()
-                    dst = dst.resolve()
-
-                    if dst == src or dst.is_relative_to(src):
                         logger(
                             "error",
-                            f"Skipping: trying to copy {src} into its subdir {dst}",
+                            f"Unknown or non-existent path for '{key}': {value}",
                         )
-                        return
+                else:
+                    logger("error", f"Unknown type for '{key}': {type(value)}")
 
-                    def ignore_git_dirs(dir, contents):
-                        ignored = []
-                        for entry in contents:
-                            if entry in blacklist:
-                                ignored.append(entry)
-                        return ignored
+            def CopyTreeSafe(src: Path, dst: Path) -> None:
+                src = src.resolve()
+                dst = dst.resolve()
 
-                    try:
-                        if inside and src.is_dir():
-                            for item in src.iterdir():
-                                target = dst / item.name
-                                if item.is_dir():
-                                    shutil.copytree(
-                                        item,
-                                        target,
-                                        dirs_exist_ok=True,
-                                        ignore=ignore_git_dirs,
-                                    )
-                                else:
-                                    shutil.copy2(item, target)
+                if dst == src or dst.is_relative_to(src):
+                    logger(
+                        "error",
+                        f"Skipping: trying to copy {src} into its subdir {dst}",
+                    )
+                    return
+
+                def ignore_git_dirs(dir, contents):
+                    return [entry for entry in contents if entry in blacklist]
+
+                try:
+                    if src.is_file():
+                        dst.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(src, dst)
+                    elif src.is_dir():
+                        shutil.copytree(
+                            src, dst, dirs_exist_ok=True, ignore=ignore_git_dirs
+                        )
+                    else:
+                        logger("error", f"Unsupported source type: {src}")
+                except Exception as e:
+                    logger("error", f"Failed to copy {src} → {dst}: {e}")
+
+            def walk_push_object(obj, prefix=Path(), inside=inside):
+                if isinstance(obj, str):
+                    src = Path(obj)
+                    if inside and src.is_dir():
+                        for child in src.iterdir():
+                            yield (child.name, child)
+                    else:
+                        yield (prefix, src)
+                elif isinstance(obj, dict):
+                    for key, value in obj.items():
+                        if inside and isinstance(value, str) and Path(value).is_dir():
+                            yield from walk_push_object(value, Path(), inside=True)
                         else:
-                            shutil.copytree(
-                                src, dst, dirs_exist_ok=True, ignore=ignore_git_dirs
-                            )
+                            yield from walk_push_object(value, prefix / key, inside)
+                else:
+                    raise ValueError(f"Unsupported value in push_object: {obj!r}")
 
-                    except Exception as e:
-                        logger("error", f"Failed to copy {src} → {dst}: {e}")
+            for relative_dst, src in walk_push_object(push_object, inside=inside):
+                dst = path_dir / relative_dst
+                if path_exists(src):
+                    if dst.exists() and inside:
+                        if dst.is_dir():
+                            shutil.rmtree(dst)
+                        else:
+                            dst.unlink()
+                    CopyTreeSafe(src, dst)
+                else:
+                    logger("error", f"Source not found: {src}")
 
-                for parent_dir, children in dict_keys:
-                    for child_name, full_path in children.items():
-                        src = Path(full_path)
-                        dst = path_dir / parent_dir / child_name
-                        CopyTreeSafe(src, dst)
+            for d in dirs:
+                path = path_dir / d
+                CopyTreeSafe(HOME / d, path)
 
-                for d in dirs:
-                    path = path_dir / d
-                    CopyTreeSafe(HOME / d, path)
+            for f in files:
+                path = path_dir / f
+                CopyFile(HOME / f, path)
 
-                for f in files:
-                    path = path_dir / f
-                    CopyFile(HOME / f, path)
+            git_ignore_path = path_dir / ".gitignore"
+            content = "\n".join(gitignore)
+            write_file(git_ignore_path, content)
 
-                git_ignore_path = path_dir / ".gitignore"
+        art_git_exists = """
+            ┌─┐┬┌┬┐  ┌─┐─┐ ┬┬┌─┐┌┬┐
+            │ ┬│ │   ├┤ ┌┴┬┘│└─┐ │ 
+           o└─┘┴ ┴   └─┘┴ └─┴└─┘ ┴ 
+        """
+        art_git_clone = """
+            ┌─┐┬┌┬┐  ┌─┐┬  ┌─┐┌┐┌┌─┐
+            │ ┬│ │   │  │  │ ││││├┤ 
+            └─┘┴ ┴   └─┘┴─┘└─┘┘└┘└─┘
+        """
+        line = "▁" * 50 + "\n"
+        col = Colors()
 
-                content = "\n".join(gitignore)
-                write_file(git_ignore_path, content)
-
-            art_git_exists = """
-                ┌─┐┬┌┬┐  ┌─┐─┐ ┬┬┌─┐┌┬┐
-                │ ┬│ │   ├┤ ┌┴┬┘│└─┐ │ 
-               o└─┘┴ ┴   └─┘┴ └─┴└─┘ ┴ 
-            """
-            line = "▁" * 50 + "\n"
-            if path_exists(path_dir / ".git"):
-                col = Colors()
-                print(f"{col.OKGREEN}{art_git_exists}{col.ENDC}")
-                print(line)
-                rm_all_without_git(ExistDotgit=False)
-                copy_base_push_json_paths()
-                g.add()
-                g.commit(massage="no massage | script push", noconfirm=noconfirm)
-                print()
-                g.push()
-                print()
-                print(line)
-            else:
-                col = Colors()
-                art_git_clone = """
-                    ┌─┐┬┌┬┐  ┌─┐┬  ┌─┐┌┐┌┌─┐
-                    │ ┬│ │   │  │  │ ││││├┤ 
-                    └─┘┴ ┴   └─┘┴─┘└─┘┘└┘└─┘
-                """
-                print(line)
-                RmDir(path_dir)
-                print(f"{col.OKGREEN}{art_git_clone}{col.ENDC}")
-                g.clone(f"{url} {path_dir}")
-                rm_all_without_git()
-                copy_base_push_json_paths()
-                g.add()
-                g.commit(massage="no massage | script push", noconfirm=noconfirm)
-                print()
-                g.push()
-                print()
-                print(line)
+        if path_exists(path_dir / ".git"):
+            print(f"{col.OKGREEN}{art_git_exists}{col.ENDC}")
+            print(line)
+            rm_all_without_git(ExistDotgit=False)
+            copy_base_push_json_paths()
+            g.add()
+            g.commit(massage="no massage | script push", noconfirm=noconfirm)
+            print()
+            g.push()
+            print()
+            print(line)
+        else:
+            print(line)
+            RmDir(path_dir)
+            print(f"{col.OKGREEN}{art_git_clone}{col.ENDC}")
+            g.clone(f"{url} {path_dir}")
+            rm_all_without_git()
+            copy_base_push_json_paths()
+            g.add()
+            g.commit(massage="no massage | script push", noconfirm=noconfirm)
+            print()
+            g.push()
+            print()
+            print(line)
 
     def more_push_handler(self) -> None:
         j = baseJson()
@@ -579,15 +589,16 @@ class BaseJsonHandler:
             url = f"{pm_data[i]['url']}"
             branch = f"{pm_data[i]['branch']}"
             push_object = dict(pm_data[i]["push_object"])
+            inside = pm_data[i]["inside"]
             self.push_logic(
                 dirname=dirname,
                 url=url,
                 branch=branch,
+                inside=inside,
                 push_object=push_object,
                 noconfirm=self.noconfirm,
                 gitignore=self.gitignore,
                 blacklist=self.blacklist,
-                inside=self.inside,
             )
 
     def base_push_handler(self) -> None:

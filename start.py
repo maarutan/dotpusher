@@ -13,7 +13,7 @@ j = BaseJsonHandler(
     url="git@github.com:maarutan/dotfiles.git",
     branch="master",
     noconfirm=True,
-    inside=True,
+    inside=False,
     # -------------
     gitignore=[
         ".git/",
@@ -75,6 +75,12 @@ j.base_push(
         # "Videos": f"{HOME}/Videos",
         ".viebrc": f"{HOME}/.viebrc",
         ".zshrc": f"{HOME}/.zshrc",
+        # -------------
+        "etc": {
+            "ly": {
+                "config.ini": "/etc/ly/config.ini",
+            }
+        },
     },
 )
 
@@ -87,9 +93,7 @@ j.push_more(
         # ------------------------------------------
         # "push_object": {}
         "push_object": {
-            ".config": {
-                "yazi": f"{HOME}/.config/yazi",
-            }
+            "yazi": f"{HOME}/.config/yazi",
         },
     },
     {
@@ -100,9 +104,7 @@ j.push_more(
         # ------------------------------------------
         # "push_object": {}
         "push_object": {
-            ".config": {
-                "nvim": f"{HOME}/.config/nvim",
-            }
+            "nvim": f"{HOME}/.config/nvim",
         },
     },
 )
