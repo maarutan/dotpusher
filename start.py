@@ -6,8 +6,8 @@
 # Copyright (c) 2025 maaru.tan. All Rights Reserved.
 # -------------------------------
 from logic.logic import *  # ----
-
 # -------------------------------
+
 j = BaseJsonHandler(
     dirname="dotfiles",
     url="git@github.com:maarutan/dotfiles.git",

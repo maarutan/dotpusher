@@ -55,7 +55,7 @@ def main():
 # ---------------------------------------------
 
 
-class Colors:
+class Styles:
     HEADER = "\033[95m"
     YELLOW = "\033[93m"
     OKBLUE = "\033[94m"
@@ -67,6 +67,59 @@ class Colors:
     ENDC = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
+
+    def __init__(self, col: str = ENDC, content: str = "Enter content") -> None:
+        self.font = self._fonts().get("calvin_s")
+        self.col = col
+        if not self.font:
+            raise ValueError(f"Font 'calvin_s' not found.")
+        self.content = content
+
+    def _fonts(self) -> dict:
+        return {
+            "calvin_s": {
+                "a": "┌─┐\n├─┤\n┴ ┴",
+                "b": "┌┐ \n├┴┐\n└─┘",
+                "c": "┌─┐\n│  \n└─┘",
+                "d": "┌┬┐\n ││\n─┴┘",
+                "e": "┌─┐\n├─ \n└─┘",
+                "f": "┌─┐\n├┤ \n└",
+                "g": "┌─┐\n│ ┬\n└─┘",
+                "h": "┬ ┬\n├─┤\n┴ ┴",
+                "i": "┬\n│\n┴",
+                "j": " ┬\n │\n└┘",
+                "k": "┬┌─\n├┴┐\n┴ ┴",
+                "l": "┬  \n│  \n┴─┘",
+                "m": "┌┬┐\n│││\n┴ ┴",
+                "n": "┌┐┌\n│││\n┘└┘",
+                "o": "┌─┐\n│ │\n└─┘",
+                "p": "┌─┐\n├─┘\n┴  ",
+                "q": "┌─┐ \n│─┼┐\n└─┘└",
+                "r": "┬─┐\n├┬┘\n┴└─",
+                "s": "┌─┐\n└─┐\n└─┘",
+                "t": "┌┬┐\n │ \n ┴ ",
+                "u": "┬ ┬\n│ │\n└─┘",
+                "v": "┬  ┬\n└┐┌┘\n └┘",
+                "w": "┬ ┬\n│││\n└┴┘",
+                "x": "─┐ ┬\n┌┴┬┘\n┴ └─",
+                "y": "┬ ┬\n└┬┘\n ┴ ",
+                "z": "┌─┐\n┌─┘\n└─┘",
+            },
+        }
+
+    def render(self):
+        lines = [""] * 3
+        for char in self.content:
+            char_lines = self.font.get(char.lower(), "   \n   \n   ").split("\n")  # type: ignore
+            for i in range(3):
+                lines[i] += char_lines[i] + ""
+        return "\n".join(lines)
+
+    def __str__(self) -> str:
+        try:
+            return f"{self.col}" + self.render() + f"{self.ENDC}"
+        except Exception:
+            return "Error: no valid font"
 
 
 def RmFile(path: Path) -> None:
@@ -109,7 +162,7 @@ def logger(
     *args: str,
 ) -> None:
     # - var
-    col = Colors
+    col = Styles
     lvl = lvl.lower()
     nerd = check_nerd_font()
 
@@ -261,7 +314,7 @@ class baseJson:
 
 class Git:
     def __init__(self) -> None:
-        self.col = Colors()
+        self.col = Styles
 
     def add(self) -> None:
         col = self.col
@@ -537,21 +590,14 @@ class BaseJsonHandler:
             content = "\n".join(gitignore)
             write_file(git_ignore_path, content)
 
-        art_git_exists = """
-            ┌─┐┬┌┬┐  ┌─┐─┐ ┬┬┌─┐┌┬┐
-            │ ┬│ │   ├┤ ┌┴┬┘│└─┐ │ 
-           o└─┘┴ ┴   └─┘┴ └─┴└─┘ ┴ 
-        """
-        art_git_clone = """
-            ┌─┐┬┌┬┐  ┌─┐┬  ┌─┐┌┐┌┌─┐
-            │ ┬│ │   │  │  │ ││││├┤ 
-            └─┘┴ ┴   └─┘┴─┘└─┘┘└┘└─┘
-        """
+        art_git_clone = Styles(col=Styles.OKGREEN, content="git clone")
+        art_git_exists = Styles(col=Styles.OKGREEN, content="git exists")
+
         line = "▁" * 50 + "\n"
-        col = Colors()
+        col = Styles
 
         if path_exists(path_dir / ".git"):
-            print(f"{col.OKGREEN}{art_git_exists}{col.ENDC}")
+            print(art_git_exists)
             print(line)
             rm_all_without_git(ExistDotgit=False)
             copy_base_push_json_paths()
@@ -564,7 +610,7 @@ class BaseJsonHandler:
         else:
             print(line)
             RmDir(path_dir)
-            print(f"{col.OKGREEN}{art_git_clone}{col.ENDC}")
+            print(art_git_clone)
             g.clone(f"{url} {path_dir}")
             rm_all_without_git()
             copy_base_push_json_paths()
