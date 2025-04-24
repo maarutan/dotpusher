@@ -6,12 +6,6 @@
 # Copyright (c) 2025 maaru.tan. All Rights Reserved.
 # -----------------------------------------------------
 
-# -----[ Variables ]
-
-DEBUG = False
-
-# ---------------------
-
 import json
 from pathlib import Path
 from shutil import copytree, rmtree
