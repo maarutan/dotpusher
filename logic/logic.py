@@ -23,6 +23,7 @@ from os import listdir, chdir
 from os import system as shell
 from sys import exit
 from argparse import ArgumentParser
+from enum import Enum
 
 # ----- [ Paths ]
 HOME = Path.home()
@@ -42,25 +43,79 @@ def main():
 # ---------------------------------------------
 
 
-class Styles:
-    HEADER = "\033[95m"
-    YELLOW = "\033[93m"
-    OKBLUE = "\033[94m"
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    OKPURPLE = "\033[35m"
-    WARN = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
+def does_path_exists(path) -> bool:
+    return bool(Path(path).exists())
 
-    def __init__(self, col: str = ENDC, content: str = "Enter content") -> None:
+
+def cmdline(
+    command: str = "echo enter your command :D",
+    Popens: bool = False,
+    runs: bool = True,
+) -> Optional[str]:
+    try:
+        if Popens:
+            process = Popen(
+                command,
+                shell=True,
+                text=True,
+                stdout=PIPE,
+                stderr=PIPE,
+            )
+            stdout, stderr = process.communicate()
+            if process.returncode != 0:
+                return f"Error: {stderr.strip()}"
+        elif runs:
+            result = run(
+                command,
+                shell=True,
+                text=True,
+                stdout=PIPE,
+                stderr=PIPE,
+                check=True,
+            )
+            stdout = result.stdout
+        else:
+            Logger(path=LOGGFILE, status="e", content="cmdline invalid arguments :(")
+            return "Error: cmdline invalid arguments :("
+
+        return f"{stdout.strip()}"
+
+    except CalledProcessError as e:
+        Logger(path=LOGGFILE, status="e", content=f"cmdline: {e.stderr}")
+    except Exception as e:
+        Logger(path=LOGGFILE, status="e", content=f"cmdline: {e}")
+
+
+def arguments() -> None:
+    parser = ArgumentParser(description="push dotfiles :D")
+    parser.add_argument("-l", "--list", action="store_true", help="list dotfiles")
+    args = parser.parse_args()
+
+    if args.list:
+        print("list dotfiles")
+
+
+class Col(str, Enum):
+    """class Colors"""
+
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    PURPLE = "\033[35m"
+    RED = "\033[91m"
+    RESET = "\033[0m"
+    BOLD_TEXT = "\033[1m"
+    UNDERLINE_TEXT = "\033[4m"
+
+
+class StylizedText:
+    def __init__(self, col: Col = Col.RESET, content: str = "Enter content") -> None:
         self.font = self._fonts().get("calvin_s")
-        self.col = col
         if not self.font:
             raise ValueError(f"Font 'calvin_s' not found.")
         self.content = content
+        self.col = col
 
     def _fonts(self) -> dict:
         return {
@@ -104,13 +159,9 @@ class Styles:
 
     def __str__(self) -> str:
         try:
-            return f"{self.col}" + self.render() + f"{self.ENDC}"
+            return f"{self.col.value}" + self.render() + f"{Col.RESET.value}"
         except Exception:
             return "Error: no valid font"
-
-
-def does_path_exists(path) -> bool:
-    return bool(Path(path).exists())
 
 
 class FileManager:
@@ -280,47 +331,8 @@ class Logger:
             f"  l(path, status, content)\n"
             f"---------------------------\n"
             f"content write to that:\n"
-            f"  INFO: [ content ] {self.current_time()}\n"
+            f"  INFO: | content | {self.current_time()}\n"
         )
-
-
-def cmdline(
-    command: str = "echo enter your command :D",
-    Popens: bool = False,
-    runs: bool = True,
-) -> Optional[str]:
-    try:
-        if Popens:
-            process = Popen(
-                command,
-                shell=True,
-                text=True,
-                stdout=PIPE,
-                stderr=PIPE,
-            )
-            stdout, stderr = process.communicate()
-            if process.returncode != 0:
-                return f"Error: {stderr.strip()}"
-        elif runs:
-            result = run(
-                command,
-                shell=True,
-                text=True,
-                stdout=PIPE,
-                stderr=PIPE,
-                check=True,
-            )
-            stdout = result.stdout
-        else:
-            Logger(path=LOGGFILE, status="e", content="cmdline invalid arguments :(")
-            return "Error: cmdline invalid arguments :("
-
-        return f"{stdout.strip()}"
-
-    except CalledProcessError as e:
-        Logger(path=LOGGFILE, status="e", content=f"cmdline: {e.stderr}")
-    except Exception as e:
-        Logger(path=LOGGFILE, status="e", content=f"cmdline: {e}")
 
 
 class JsonManager:
@@ -377,79 +389,64 @@ class JsonManager:
 
 
 class Git:
-    def __init__(self) -> None:
-        self.col = Styles
+    def _formatted_output(
+        self,
+        command: str,
+        *args,
+    ) -> None:
+        print(
+            f"{Col.YELLOW.value}~~>  {Col.PURPLE.value}git{Col.CYAN.value} {Col.UNDERLINE_TEXT.value}{command} {' '.join(args)}{Col.RESET.value}"
+        )
 
     def add(self) -> None:
-        col = self.col
         try:
-            print(
-                f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}add -A .{col.ENDC}"
-            )
+            self._formatted_output("add -A .")
             shell("git add -A .")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git add failed: {e}")
 
     def clone(self, url: str) -> None:
-        col = self.col
         try:
-            print(
-                f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN}  {col.UNDERLINE}clone {url}{col.ENDC}"
-            )
+            self._formatted_output("clone", url)
             shell(f"git clone {url}")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git clone failed: {e}")
 
     def beginning(self) -> None:
         try:
-            col = self.col
-            print(
-                f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}clean -fdx{col.ENDC}"
-            )
+            self._formatted_output("clean -fdx")
             cmdline("git clean -fdx")
-            print(
-                f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}reset --hard origin/$(git rev-parse --abbrev-ref HEAD){col.ENDC}"
+            self._formatted_output(
+                "reset --hard origin/$(git rev-parse --abbrev-ref HEAD)"
             )
             cmdline("git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)")
-            print(
-                f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}fetch --all{col.ENDC}"
-            )
+            self._formatted_output("fetch --all")
             cmdline("git fetch --all")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git beginning failed: {e}")
 
     def commit(
         self,
-        massage: str = "",
+        message: str = "",
         noconfirm: bool = False,
     ) -> None:
-        col = self.col
         try:
             if noconfirm:
-                print(
-                    f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}commit -m '{massage}'{col.ENDC}"
-                )
-                print()
-                shell(f"git commit -m '{massage}'")
+                self._formatted_output("commit -m", message)
+                shell(f"git commit -m '{message}'")
             else:
                 i = input(
-                    f"{col.YELLOW}!!! {col.OKCYAN}{col.UNDERLINE}your message for commit :D ?\n{col.YELLOW} ~~> : {col.ENDC}"
+                    f"{Col.YELLOW.value}!!! {Col.CYAN.value}{Col.UNDERLINE_TEXT.value}your message for commit :D ?\n{Col.YELLOW.value} ~~> : {Col.RESET.value}"
                 )
-                print(
-                    f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}commit -m '{i}'{col.ENDC}"
-                )
+                self._formatted_output("commit -m", i)
                 shell(f"git commit -m '{i}'")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git commit failed: {e}")
 
     def push(self) -> None:
-        col = self.col
         try:
-            print(
-                f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}push origin HEAD{col.ENDC}"
-            )
-            print()
-            shell(f"git push origin HEAD")
+            self._formatted_output("push origin HEAD")
+            shell("git push origin HEAD")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git push failed: {e}")
 
@@ -678,11 +675,10 @@ class BaseJsonHandler:
             content = "\n".join(gitignore)
             f(git_ignore_path, content).write()
 
-        art_git_clone = Styles(col=Styles.OKGREEN, content="git clone")
-        art_git_exists = Styles(col=Styles.OKGREEN, content="git exists")
+        art_git_clone = StylizedText(Col.PURPLE, content="git clone")
+        art_git_exists = StylizedText(Col.GREEN, content="git exists")
 
         line = "▁" * 50 + "\n"
-        col = Styles
 
         if does_path_exists(path_dir / ".git"):
             print(art_git_exists)
@@ -690,7 +686,7 @@ class BaseJsonHandler:
             rm_all_without_git(ExistDotgit=False)
             copy_base_push_json_paths()
             g.add()
-            g.commit(massage="no massage | script push", noconfirm=noconfirm)
+            g.commit(message="no massage | script push", noconfirm=noconfirm)
             print()
             g.push()
             print()
@@ -704,7 +700,7 @@ class BaseJsonHandler:
             rm_all_without_git()
             copy_base_push_json_paths()
             g.add()
-            g.commit(massage="no massage | script push", noconfirm=noconfirm)
+            g.commit(message="no massage | script push", noconfirm=noconfirm)
             print()
             g.push()
             print()
@@ -749,12 +745,3 @@ class BaseJsonHandler:
             blacklist=self.blacklist,
             inside=self.inside,
         )
-
-
-def arguments() -> None:
-    parser = ArgumentParser(description="push dotfiles :D")
-    parser.add_argument("-l", "--list", action="store_true", help="list dotfiles")
-    args = parser.parse_args()
-
-    if args.list:
-        print("list dotfiles")
