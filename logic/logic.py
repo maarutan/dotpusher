@@ -12,30 +12,17 @@ DEBUG = False
 
 # ---------------------
 
-import subprocess
 import json
-import time
-import typing
-import pathlib
-import sys
-import shutil
-import argparse
-import os
-
-# ---------------------
-Sleep = time.sleep
-Run = subprocess.run
-Popen = subprocess.Popen
-Optional = typing.Optional
-Path = pathlib.Path
-Exit = sys.exit
-ArgPars = argparse.ArgumentParser
-Chdir = os.chdir
-ListDir = os.listdir
-CopyTree = shutil.copytree
-CopyFile = shutil.copy
-Shell = os.system
-# ---------------------
+from pathlib import Path
+from shutil import copytree, rmtree
+from shutil import copy, copy2
+from time import sleep, localtime
+from subprocess import PIPE, run, Popen, CalledProcessError
+from typing import Optional
+from os import listdir, chdir
+from os import system as shell
+from sys import exit
+from argparse import ArgumentParser
 
 # ----- [ Paths ]
 HOME = Path.home()
@@ -122,194 +109,271 @@ class Styles:
             return "Error: no valid font"
 
 
-def RmFile(path: Path) -> None:
-    try:
-        if path.is_file():
-            path.unlink()
-    except Exception as e:
-        logger("error", f"RmFile failed for {path}: {e}")
-
-
-def RmDir(path: Path) -> None:
-    try:
-        if path.is_dir():
-            shutil.rmtree(path)
-    except Exception as e:
-        logger("error", f"RmDir failed for {path}: {e}")
-
-
-def path_exists(path) -> bool:
+def does_path_exists(path) -> bool:
     return bool(Path(path).exists())
 
 
-def write_file(path, content):
-    with open(path, "w") as f:
-        f.write(content)
+class FileManager:
+    def __init__(
+        self,
+        path: Path = Path(""),
+        content: str = "",
+    ) -> None:
+        """Constructor for FileManager class."""
+        self.path = path
+        self.content = content
+
+    def write(self) -> None:
+        "Writes a file specified by path"
+        try:
+            with open(self.path, "w") as f:
+                f.write(self.content)
+        except Exception as e:
+            Logger(path=LOGGFILE, status="e", content=f"write_file failed: {e}")
+
+    def append(self) -> None:
+        "Appends a file specified by path"
+        try:
+            with open(self.path, "a") as f:
+                f.write(self.content)
+        except Exception as e:
+            Logger(path=LOGGFILE, status="e", content=f"append_file failed: {e}")
+
+    def read(self) -> str:
+        try:
+            with open(self.path, "r") as f:
+                return f.read()
+        except Exception as e:
+            Logger(path=LOGGFILE, status="e", content=f"read_file failed: {e}")
+            return ""
+
+    def delete_file(self) -> None:
+        "Deletes a file specified by path"
+        try:
+            if self.path.is_file():
+                self.path.unlink()
+            else:
+                Logger(
+                    path=LOGGFILE,
+                    status="i",
+                    content=f"Path is not a file: {self.path}",
+                )
+            #     self.delete_dir()
+
+        except Exception as e:
+            Logger(
+                path=LOGGFILE,
+                status="i",
+                content=f"delete_file failed for {self.path}: {e}",
+            )
+
+    def delete_dir(self) -> None:
+        "Deletes a directory specified by path"
+        try:
+            if self.path.is_dir():
+                rmtree(self.path)
+            else:
+                Logger(
+                    path=LOGGFILE,
+                    status="e",
+                    content=f"Path is not a directory: {self.path}",
+                )
+
+        except Exception as e:
+            Logger(
+                path=LOGGFILE,
+                status="e",
+                content=f"delete_dir failed for {self.path}: {e}",
+            )
+
+    def __str__(self) -> str:
+        "Returns a string representation of the class"
+        return (
+            f"FileManager(path={self.path}, content={self.content})\n"
+            "Please use: write, append, read, delete_file, delete_dir\n"
+            "For example: f = FileManager(path, content)\n"
+            "f.write(), f.append(), f.read(), f.delete_file(), f.delete_dir()"
+        )
 
 
-def append_file(path, content):
-    with open(path, "a") as f:
-        f.write(content)
+class Logger:
+    def __init__(
+        self,
+        path: Path = Path(""),
+        status: str = "info",
+        content: str = "",
+    ) -> None:
+        """Constructor for Logger class"""
 
+        self.path = path
+        self.status = status.lower()
+        self.content = content
+        self.state = {
+            "info": "i",
+            "warn": "w",
+            "error": "e",
+            "debug": "d",
+        }
 
-def read_file(path):
-    with open(path, "r") as f:
-        return f.read()
+        self.F = FileManager(path=self.path)
+        try:
+            self.handle_log()
+        except Exception as e:
+            print(f"class Logger failed: {e}")
 
+    def current_time(self) -> str:
+        """Returns the current time"""
 
-def logger(
-    lvl: str = "info",
-    *args: str,
-) -> None:
-    # - var
-    col = Styles
-    lvl = lvl.lower()
-    nerd = check_nerd_font()
-
-    # - func
-    def current_time() -> str:
-        now = time.localtime()
+        now = localtime()
         return f"{now.tm_mday:02d}.{now.tm_mon:02d}.{now.tm_year} {now.tm_hour:02d}:{now.tm_min:02d}:{now.tm_sec:02d}"
 
-    def lvl_icon(pretty: bool = False) -> str:
-        match lvl:
-            case "error":
-                return (
-                    f"{col.FAIL}ERR 󰅚 {col.ENDC}"
-                    if nerd and pretty
-                    else f"{col.FAIL}Error{col.ENDC}"
-                    if pretty
-                    else "ERR 󰅚"
-                    if nerd
-                    else "Error"
-                )
-            case "warn":
-                return (
-                    f"{col.WARN}WARN 󰀪 {col.ENDC}"
-                    if nerd and pretty
-                    else f"{col.WARN}Warn{col.ENDC}"
-                    if pretty
-                    else "WARN 󰀪"
-                    if nerd
-                    else "Warn"
-                )
-            case "info":
-                return (
-                    f"{col.OKBLUE}INFO  {col.ENDC}"
-                    if nerd and pretty
-                    else f"{col.OKBLUE}Info{col.ENDC}"
-                    if pretty
-                    else "INFO "
-                    if nerd
-                    else "Info"
-                )
-            case _:
-                return "Log"
+    def write(self, content: str = "") -> None:
+        """Palimorphism from the inheriting class FileManager method write"""
+        try:
+            self.F.content = content if content else self.content
+            self.F.append()
+        except Exception as e:
+            print(f"class Logger failed: {e}")
 
-    # - build
-    pretty_lvl = lvl_icon(pretty=True)
-    log_lvl = lvl_icon(pretty=False)
-    message = f"{log_lvl} : [ {' '.join(args)} ] {current_time()}\n"
-    message_pretty = f"{pretty_lvl} : [ {' '.join(args)} ] {current_time()}\n"
+    def handle_log(self):
+        """Handles the log based on the status"""
+        cmd = self.status
 
-    # - print
-    if DEBUG:
-        print(message_pretty)
+        def render_handle_log() -> None:
+            logo = ""
+            for k, v in self.state.items():
+                if cmd == v or cmd == k:
+                    logo = k.upper()
 
-    # - write
-    if not path_exists(LOGGFILE):
-        write_file(LOGGFILE, message)
-    else:
-        append_file(LOGGFILE, message)
+            crt = self.current_time()
+
+            if ":" in self.content:
+                msg, path = self.content.split(":", 1)
+                msg = msg.strip() + ":"
+                path = path.strip()
+            else:
+                msg = self.content
+                path = ""
+
+            logo_width = 6
+            msg_width = 28
+            path_width = 55
+
+            logo_str = f"{logo:<{logo_width}}"
+            msg_str = f"{msg:<{msg_width}}"
+            path_str = f"{path:<{path_width}}"
+
+            content = f"{logo_str}| {msg_str}| {path_str}| {crt}\n"
+            self.write(content)
+
+        if cmd != "":
+            render_handle_log()
+        else:
+            print("class Logger failed: status is empty")
+
+    def __str__(self) -> str:
+        """Returns a string representation of the class"""
+        return (
+            f"class Logger:\nLogger write content in the file specified path\n"
+            f"Please use: \n"
+            f"  l = Logger\n"
+            f"  l(path, status, content)\n"
+            f"---------------------------\n"
+            f"content write to that:\n"
+            f"  INFO: [ content ] {self.current_time()}\n"
+        )
 
 
 def cmdline(
     command: str = "echo enter your command :D",
     Popens: bool = False,
-    Runs: bool = True,
+    runs: bool = True,
 ) -> Optional[str]:
     try:
         if Popens:
-            process = subprocess.Popen(
+            process = Popen(
                 command,
                 shell=True,
                 text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=PIPE,
+                stderr=PIPE,
             )
             stdout, stderr = process.communicate()
             if process.returncode != 0:
                 return f"Error: {stderr.strip()}"
-        elif Runs:
-            result = subprocess.run(
+        elif runs:
+            result = run(
                 command,
                 shell=True,
                 text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=PIPE,
+                stderr=PIPE,
                 check=True,
             )
             stdout = result.stdout
         else:
-            logger("error", "invalid arguments :(")
-            return "Error: invalid arguments :("
+            Logger(path=LOGGFILE, status="e", content="cmdline invalid arguments :(")
+            return "Error: cmdline invalid arguments :("
 
         return f"{stdout.strip()}"
 
-    except subprocess.CalledProcessError as e:
-        logger("error", f"{e.stderr}")
+    except CalledProcessError as e:
+        Logger(path=LOGGFILE, status="e", content=f"cmdline: {e.stderr}")
     except Exception as e:
-        logger("error", f"{e}")
+        Logger(path=LOGGFILE, status="e", content=f"cmdline: {e}")
 
 
-def check_nerd_font() -> str | bool:
-    font = bool(cmdline("fc-list | grep Nerd"))
-    return font if font else "Error: Nerd Font not found"
-
-
-class baseJson:
-    def __init__(self) -> None:
-        if not path_exists(BASEJSON):
-            write_file(BASEJSON, "{}")
+class JsonManager:
+    def __init__(self, path: Path = Path("")) -> None:
+        """Constructor for baseJson class."""
+        f = FileManager
+        self.path = path
+        try:
+            if not does_path_exists(self.path):
+                f(self.path, "{}").write()
+        except Exception as e:
+            Logger(path=LOGGFILE, status="e", content=f"init_json failed: {e}")
 
     def read(self) -> dict:
+        """Reads a json specified by path."""
         try:
-            with open(BASEJSON, "r") as f:
+            with open(self.path, "r") as f:
                 return json.load(f)
         except Exception as e:
-            logger("error", f"read_json failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"read_json failed: {e}")
             return {}
 
     def write(self, data) -> None:
+        """Writes a json specified by path."""
         try:
-            with open(BASEJSON, "w") as f:
+            with open(self.path, "w") as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
-            logger("error", f"write_json failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"write_json failed: {e}")
 
     def get_data(self) -> dict:
-        if path_exists(BASEJSON):
+        """Reads a json specified by path."""
+        if does_path_exists(self.path):
             try:
                 data = self.read()
             except Exception as e:
-                logger("error", f"read_json failed: {e}")
+                Logger(path=LOGGFILE, status="e", content=f"read_json failed: {e}")
                 data = {}
         else:
             data = {}
         return data
 
     def append(self, item) -> None:
+        """Appends an item to a json specified by path."""
         try:
-            with open(BASEJSON, "r") as f:
+            with open(self.path, "r") as f:
                 data = json.load(f)
             if not isinstance(data, list):
                 raise TypeError("JSON root is not a list — can't append item.")
-
             data.append(item)
-            with open(BASEJSON, "w") as f:
-                json.dump(data, f, indent=2)
+            self.write(data)
         except Exception as e:
-            logger("error", f"append failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"append failed: {e}")
 
 
 class Git:
@@ -322,9 +386,9 @@ class Git:
             print(
                 f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}add -A .{col.ENDC}"
             )
-            Shell("git add -A .")
+            shell("git add -A .")
         except Exception as e:
-            logger("error", f"git add failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"git add failed: {e}")
 
     def clone(self, url: str) -> None:
         col = self.col
@@ -332,9 +396,9 @@ class Git:
             print(
                 f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN}  {col.UNDERLINE}clone {url}{col.ENDC}"
             )
-            Shell(f"git clone {url}")
+            shell(f"git clone {url}")
         except Exception as e:
-            logger("error", f"git clone failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"git clone failed: {e}")
 
     def beginning(self) -> None:
         try:
@@ -352,7 +416,7 @@ class Git:
             )
             cmdline("git fetch --all")
         except Exception as e:
-            logger("error", f"git beginning failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"git beginning failed: {e}")
 
     def commit(
         self,
@@ -366,7 +430,7 @@ class Git:
                     f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}commit -m '{massage}'{col.ENDC}"
                 )
                 print()
-                Shell(f"git commit -m '{massage}'")
+                shell(f"git commit -m '{massage}'")
             else:
                 i = input(
                     f"{col.YELLOW}!!! {col.OKCYAN}{col.UNDERLINE}your message for commit :D ?\n{col.YELLOW} ~~> : {col.ENDC}"
@@ -374,9 +438,9 @@ class Git:
                 print(
                     f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}commit -m '{i}'{col.ENDC}"
                 )
-                Shell(f"git commit -m '{i}'")
+                shell(f"git commit -m '{i}'")
         except Exception as e:
-            logger("error", f"git commit failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"git commit failed: {e}")
 
     def push(self) -> None:
         col = self.col
@@ -385,9 +449,9 @@ class Git:
                 f"{col.YELLOW}~~>  {col.OKPURPLE}git{col.OKCYAN} {col.UNDERLINE}push origin HEAD{col.ENDC}"
             )
             print()
-            Shell(f"git push origin HEAD")
+            shell(f"git push origin HEAD")
         except Exception as e:
-            logger("error", f"git push failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"git push failed: {e}")
 
 
 class BaseJsonHandler:
@@ -412,20 +476,20 @@ class BaseJsonHandler:
         try:
             self.base_push_handler()
         except Exception as e:
-            logger("error", f"base_push_handler failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"base_push_handler failed: {e}")
         try:
             self.more_push_handler()
         except Exception as e:
-            logger("error", f"more_push_handler failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"more_push_handler failed: {e}")
 
     def base_push(
         self,
         *extra_entries: dict,
         push_object: dict,
     ) -> None:
-        j = baseJson()
+        j = JsonManager(BASEJSON)
         try:
-            data = j.get_data() if path_exists(BASEJSON) else {}
+            data = j.get_data() if does_path_exists(BASEJSON) else {}
             data[self.dirname] = {
                 "dirname": self.dirname,
                 "url": self.url,
@@ -442,17 +506,17 @@ class BaseJsonHandler:
                 try:
                     j.append(entry)
                 except Exception as e:
-                    logger("error", f"append failed: {e}")
+                    Logger(path=LOGGFILE, status="e", content=f"append failed: {e}")
 
         except Exception as e:
-            logger("error", f"dump_json failed: {e}")
+            Logger(path=LOGGFILE, status="e", content=f"dump_json failed: {e}")
 
     def push_more(
         self,
         *repos: dict,
     ) -> None:
-        j = baseJson()
-        data = j.get_data() if path_exists(BASEJSON) else {}
+        j = JsonManager(BASEJSON)
+        data = j.get_data() if does_path_exists(BASEJSON) else {}
 
         if not repos:
             return
@@ -465,7 +529,11 @@ class BaseJsonHandler:
             ):
                 data["push_more"][str(i)] = repo
             else:
-                logger("error", f"Invalid format for repo #{i}: {repo}")
+                Logger(
+                    path=LOGGFILE,
+                    status="e",
+                    content=f"Invalid format for repo #{i}: {repo}",
+                )
 
         j.write(data)
 
@@ -481,27 +549,32 @@ class BaseJsonHandler:
         noconfirm: bool,
     ) -> None:
         g = Git()
+        f = FileManager
         dict_keys = []
         dirs = []
         files = []
         path_dir = DIST / dirname
         Path(path_dir).mkdir(exist_ok=True, parents=True)
-        listD = ListDir(path_dir)
+        listD = listdir(path_dir)
 
         if push_object == {}:
-            logger("error", "push_object is empty")
+            Logger(path=LOGGFILE, status="e", content="push_object is empty")
             return
 
         def rm_all_without_git(ExistDotgit: bool = True) -> None:
-            Chdir(path_dir)
+            chdir(path_dir)
             if not ExistDotgit:
                 g.beginning()
             for i in listD:
                 if i != ".git":
-                    RmDir(path_dir / i)
-                    RmFile(path_dir / i)
+                    f(path_dir / i).delete_file()
+                    f(path_dir / i).delete_dir()
                 else:
-                    logger("error", f"can't remove objects where .git")
+                    Logger(
+                        path=LOGGFILE,
+                        status="e",
+                        content="push_logic: can't remove objects where `.git`",
+                    )
 
         def copy_base_push_json_paths() -> None:
             for key, value in push_object.items():
@@ -515,21 +588,27 @@ class BaseJsonHandler:
                     elif p.is_file():
                         files.append(key)
                     else:
-                        logger(
-                            "error",
-                            f"Unknown or non-existent path for '{key}': {value}",
+                        Logger(
+                            path=LOGGFILE,
+                            status="e",
+                            content=f"Unsupported type: {value}",
                         )
                 else:
-                    logger("error", f"Unknown type for '{key}': {type(value)}")
+                    Logger(
+                        path=LOGGFILE,
+                        status="e",
+                        content=f"Unknown type for '{key}': {type(value)}",
+                    )
 
             def CopyTreeSafe(src: Path, dst: Path) -> None:
                 src = src.resolve()
                 dst = dst.resolve()
 
                 if dst == src or dst.is_relative_to(src):
-                    logger(
-                        "error",
-                        f"Skipping: trying to copy {src} into its subdir {dst}",
+                    Logger(
+                        path=LOGGFILE,
+                        status="e",
+                        content=f"Skipping: trying to copy {src} into its subdir {dst}",
                     )
                     return
 
@@ -539,15 +618,21 @@ class BaseJsonHandler:
                 try:
                     if src.is_file():
                         dst.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(src, dst)
+                        copy2(src, dst)
                     elif src.is_dir():
-                        shutil.copytree(
-                            src, dst, dirs_exist_ok=True, ignore=ignore_git_dirs
-                        )
+                        copytree(src, dst, dirs_exist_ok=True, ignore=ignore_git_dirs)
                     else:
-                        logger("error", f"Unsupported source type: {src}")
+                        Logger(
+                            path=LOGGFILE,
+                            status="e",
+                            content=f"Unsupported source type: {src}",
+                        )
                 except Exception as e:
-                    logger("error", f"Failed to copy {src} → {dst}: {e}")
+                    Logger(
+                        path=LOGGFILE,
+                        status="w",
+                        content=f"Failed to copy {src} → {dst}: {e}",
+                    )
 
             def walk_push_object(obj, prefix=Path(), inside=inside):
                 if isinstance(obj, str):
@@ -568,15 +653,17 @@ class BaseJsonHandler:
 
             for relative_dst, src in walk_push_object(push_object, inside=inside):
                 dst = path_dir / relative_dst
-                if path_exists(src):
+                if does_path_exists(src):
                     if dst.exists() and inside:
                         if dst.is_dir():
-                            shutil.rmtree(dst)
+                            rmtree(dst)
                         else:
                             dst.unlink()
                     CopyTreeSafe(src, dst)
                 else:
-                    logger("error", f"Source not found: {src}")
+                    Logger(
+                        path=LOGGFILE, status="e", content=f"Source not found: {src}"
+                    )
 
             for d in dirs:
                 path = path_dir / d
@@ -584,11 +671,12 @@ class BaseJsonHandler:
 
             for f in files:
                 path = path_dir / f
-                CopyFile(HOME / f, path)
+                copy(HOME / f, path)
 
+            f = FileManager
             git_ignore_path = path_dir / ".gitignore"
             content = "\n".join(gitignore)
-            write_file(git_ignore_path, content)
+            f(git_ignore_path, content).write()
 
         art_git_clone = Styles(col=Styles.OKGREEN, content="git clone")
         art_git_exists = Styles(col=Styles.OKGREEN, content="git exists")
@@ -596,7 +684,7 @@ class BaseJsonHandler:
         line = "▁" * 50 + "\n"
         col = Styles
 
-        if path_exists(path_dir / ".git"):
+        if does_path_exists(path_dir / ".git"):
             print(art_git_exists)
             print(line)
             rm_all_without_git(ExistDotgit=False)
@@ -609,7 +697,8 @@ class BaseJsonHandler:
             print(line)
         else:
             print(line)
-            RmDir(path_dir)
+            f(path_dir).delete_dir()
+
             print(art_git_clone)
             g.clone(f"{url} {path_dir}")
             rm_all_without_git()
@@ -622,7 +711,7 @@ class BaseJsonHandler:
             print(line)
 
     def more_push_handler(self) -> None:
-        j = baseJson()
+        j = JsonManager(BASEJSON)
         data = j.get_data()
         pm_data = data["push_more"]
 
@@ -648,7 +737,7 @@ class BaseJsonHandler:
             )
 
     def base_push_handler(self) -> None:
-        j = baseJson()
+        j = JsonManager(BASEJSON)
         data = j.get_data()
         self.push_logic(
             dirname=self.dirname,
@@ -663,7 +752,7 @@ class BaseJsonHandler:
 
 
 def arguments() -> None:
-    parser = ArgPars(description="push dotfiles :D")
+    parser = ArgumentParser(description="push dotfiles :D")
     parser.add_argument("-l", "--list", action="store_true", help="list dotfiles")
     args = parser.parse_args()
 
