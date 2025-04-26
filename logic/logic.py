@@ -408,14 +408,17 @@ class Git:
 
     def beginning(self) -> None:
         try:
-            self._formatted_output("clean -fdx")
-            cmdline("git clean -fdx")
+            self._formatted_output("fetch --all")
+            cmdline("git fetch --all")
+
             self._formatted_output(
                 "reset --hard origin/$(git rev-parse --abbrev-ref HEAD)"
             )
             cmdline("git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)")
-            self._formatted_output("fetch --all")
-            cmdline("git fetch --all")
+
+            self._formatted_output("clean -fdx")
+            cmdline("git clean -fdx")
+
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git beginning failed: {e}")
 
@@ -440,7 +443,7 @@ class Git:
     def push(self, branch: str) -> None:
         try:
             self._formatted_output(f"push origin {branch} --force")
-            shell("git push origin HEAD")
+            shell("push origin {branch} --force")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git push failed: {e}")
 
