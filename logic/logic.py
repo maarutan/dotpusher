@@ -492,6 +492,7 @@ class BaseJsonHandler:
                 "dirname": self.dirname,
                 "url": self.url,
                 "branch": self.branch,
+                "inside": self.inside,
                 "push_object": push_object,
             }
 
