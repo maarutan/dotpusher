@@ -392,13 +392,10 @@ class Git:
             f"{Col.YELLOW.value}~~>  {Col.PURPLE.value}git{Col.CYAN.value} {Col.UNDERLINE_TEXT.value}{command} {' '.join(args)}{Col.RESET.value}"
         )
 
-    def add(self, *args: str, p_render: bool = False) -> None:
+    def add(self) -> None:
         try:
-            args = args or (".",)
-            for arg in args:
-                if p_render:
-                    self._formatted_output("add", arg)
-                cmdline(f"git add {arg}")
+            self._formatted_output("add -A .")
+            shell("git add -A .")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git add failed: {e}")
 
@@ -424,30 +421,26 @@ class Git:
 
     def commit(
         self,
-        # state: str = "sort",  # scrpush, sort, write
         message: str = "",
         noconfirm: bool = False,
-        p_render: bool = False,
     ) -> None:
         try:
             if noconfirm:
-                if p_render:
-                    self._formatted_output("commit -m", message)
-                cmdline(f"git commit -m '{message}'")
+                self._formatted_output("commit -m", message)
+                shell(f"git commit -m '{message}'")
             else:
                 i = input(
                     f"{Col.YELLOW.value}!!! {Col.CYAN.value}{Col.UNDERLINE_TEXT.value}your message for commit :D ?\n{Col.YELLOW.value} ~~> : {Col.RESET.value}"
                 )
-                if p_render:
-                    self._formatted_output("commit -m", i)
-                cmdline(f"git commit -m '{i}'")
+                self._formatted_output("commit -m", i)
+                shell(f"git commit -m '{i}'")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git commit failed: {e}")
 
     def push(self) -> None:
         try:
             self._formatted_output("push origin HEAD")
-            shell("git push origin HEAD --force")
+            shell("git push origin HEAD")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git push failed: {e}")
 
@@ -682,31 +675,13 @@ class BaseJsonHandler:
 
         line = "▁" * 50 + "\n"
 
-        def walk_commit_handler(obj, prefix=Path()):
-            if isinstance(obj, str):
-                path = Path(obj)
-                if does_path_exists(path):
-                    yield prefix
-            elif isinstance(obj, dict):
-                for key, value in obj.items():
-                    yield from walk_commit_handler(value, prefix / key)
-            else:
-                raise ValueError(f"Unsupported value in commit object: {obj!r}")
-
-        def add_and_commit(push_object: dict, g: Git, noconfirm: bool = False):
-            for path in walk_commit_handler(push_object):
-                g.add(str(path))
-                g.add()
-                g.commit(
-                    p_render=True, message=f"update | {path} | 🚀", noconfirm=noconfirm
-                )
-
         if does_path_exists(path_dir / ".git"):
             print(art_git_exists)
             print(line)
             rm_all_without_git(ExistDotgit=False)
             copy_base_push_json_paths()
-            add_and_commit(push_object=dict(push_object), g=g, noconfirm=noconfirm)
+            g.add()
+            g.commit(message="no massage | script push", noconfirm=noconfirm)
             print()
             g.push()
             print()
@@ -719,7 +694,8 @@ class BaseJsonHandler:
             g.clone(f"{url} {path_dir}")
             rm_all_without_git()
             copy_base_push_json_paths()
-            add_and_commit(push_object=dict(push_object), g=g, noconfirm=noconfirm)
+            g.add()
+            g.commit(message="no massage | script push", noconfirm=noconfirm)
             print()
             g.push()
             print()
