@@ -437,9 +437,9 @@ class Git:
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git commit failed: {e}")
 
-    def push(self) -> None:
+    def push(self, branch: str) -> None:
         try:
-            self._formatted_output("push origin HEAD")
+            self._formatted_output(f"push origin {branch} --force")
             shell("git push origin HEAD")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git push failed: {e}")
@@ -683,7 +683,7 @@ class BaseJsonHandler:
             g.add()
             g.commit(message="no massage | script push", noconfirm=noconfirm)
             print()
-            g.push()
+            g.push(branch=branch)
             print()
             print(line)
         else:
@@ -697,9 +697,9 @@ class BaseJsonHandler:
             g.add()
             g.commit(message="no massage | script push", noconfirm=noconfirm)
             print()
-            g.push()
+            g.push(branch=branch)
             print()
-            print(line)
+            # print(line)
 
     def more_push_handler(self) -> None:
         j = JsonManager(BASEJSON)
