@@ -392,12 +392,13 @@ class Git:
             f"{Col.YELLOW.value}~~>  {Col.PURPLE.value}git{Col.CYAN.value} {Col.UNDERLINE_TEXT.value}{command} {' '.join(args)}{Col.RESET.value}"
         )
 
-    def add(self, *args: str) -> None:
+    def add(self, *args: str, p_render: bool = False) -> None:
         try:
             args = args or (".",)
             for arg in args:
-                self._formatted_output("add", arg)
-                shell(f"git add {arg}")
+                if p_render:
+                    self._formatted_output("add", arg)
+                cmdline(f"git add {arg}")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git add failed: {e}")
 
@@ -423,26 +424,30 @@ class Git:
 
     def commit(
         self,
+        # state: str = "sort",  # scrpush, sort, write
         message: str = "",
         noconfirm: bool = False,
+        p_render: bool = False,
     ) -> None:
         try:
             if noconfirm:
-                self._formatted_output("commit -m", message)
-                shell(f"git commit -m '{message}'")
+                if p_render:
+                    self._formatted_output("commit -m", message)
+                cmdline(f"git commit -m '{message}'")
             else:
                 i = input(
                     f"{Col.YELLOW.value}!!! {Col.CYAN.value}{Col.UNDERLINE_TEXT.value}your message for commit :D ?\n{Col.YELLOW.value} ~~> : {Col.RESET.value}"
                 )
-                self._formatted_output("commit -m", i)
-                shell(f"git commit -m '{i}'")
+                if p_render:
+                    self._formatted_output("commit -m", i)
+                cmdline(f"git commit -m '{i}'")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git commit failed: {e}")
 
     def push(self) -> None:
         try:
             self._formatted_output("push origin HEAD")
-            shell("git push origin HEAD")
+            shell("git push origin HEAD --force")
         except Exception as e:
             Logger(path=LOGGFILE, status="e", content=f"git push failed: {e}")
 
@@ -690,7 +695,10 @@ class BaseJsonHandler:
         def add_and_commit(push_object: dict, g: Git, noconfirm: bool = False):
             for path in walk_commit_handler(push_object):
                 g.add(str(path))
-                g.commit(message=f"update | {path} | 🚀", noconfirm=noconfirm)
+                g.add()
+                g.commit(
+                    p_render=True, message=f"update | {path} | 🚀", noconfirm=noconfirm
+                )
 
         if does_path_exists(path_dir / ".git"):
             print(art_git_exists)
