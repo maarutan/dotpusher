@@ -11,7 +11,7 @@ from logic.logic import *  # ----
 j = BaseJsonHandler(
     dirname="dotfiles",
     url="git@github.com:maarutan/dotfiles.git",
-    branch="master",
+    branch="main",
     noconfirm=True,
     inside=False,
     # -------------
@@ -85,26 +85,26 @@ j.base_push(
 )
 
 j.push_more(
-    {
-        "dirname": "yamoon",
-        "url": "git@github.com:maarutan/yamoon.git",
-        "branch": "main",
-        "inside": True,
-        # ------------------------------------------
-        # "push_object": {}
-        "push_object": {
-            "yazi": f"{HOME}/.config/yazi",
-        },
-    },
-    {
-        "dirname": "moonvim",
-        "url": "git@github.com:maarutan/moonvim.git",
-        "branch": "main",
-        "inside": True,
-        # ------------------------------------------
-        # "push_object": {}
-        "push_object": {
-            "nvim": f"{HOME}/.config/nvim",
-        },
-    },
+    # {
+    #     "dirname": "yamoon",
+    #     "url": "git@github.com:maarutan/yamoon.git",
+    #     "branch": "main",
+    #     "inside": True,
+    #     # ------------------------------------------
+    #     # "push_object": {}
+    #     "push_object": {
+    #         "yazi": f"{HOME}/.config/yazi",
+    #     },
+    # },
+    # {
+    #     "dirname": "moonvim",
+    #     "url": "git@github.com:maarutan/moonvim.git",
+    #     "branch": "main",
+    #     "inside": True,
+    #     # ------------------------------------------
+    #     # "push_object": {}
+    #     "push_object": {
+    #         "nvim": f"{HOME}/.config/nvim",
+    #     },
+    # },
 )
