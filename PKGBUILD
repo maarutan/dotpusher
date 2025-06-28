@@ -12,10 +12,10 @@ sha256sums=('SKIP')
 
 build() {
     cd "$srcdir/dotpusher-$pkgver"
-    pyinstaller --onefile main.py
+    pyinstaller --onefile --name dotpusher main.py
 }
 
 package() {
-    install -Dm755 "$srcdir/dotpusher-$pkgver/dist/main" "$pkgdir/usr/bin/dotpusher"
+    install -Dm755 "$srcdir/dotpusher-$pkgver/dist/dotpusher" "$pkgdir/usr/bin/dotpusher"
 }
 
