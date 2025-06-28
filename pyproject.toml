@@ -1,0 +1,11 @@
+[project]
+name = "dotpusher"
+version = "0.1.0"
+description = "Dotpusher is a declarative method for synchronizing local files or directories with remote ones using git."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "argcomplete>=3.6.2",
+  "setuptools>=80.9.0",
+  "wheel>=0.45.1",
+]
