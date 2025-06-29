@@ -2,12 +2,11 @@
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
 
-
+import sys
+import threading
 from core.paths.handler import paths_handler
 from core.cli import Cli
 from modules.colors import Col
-import sys
-import threading
 
 
 def main():
@@ -35,3 +34,16 @@ if __name__ == "__main__":
                     t.join(timeout=0.1)
                 except Exception:
                     pass
+
+try:
+    orig_shutdown = threading._shutdown  # type: ignore[attr-defined]
+
+    def silent_shutdown():
+        try:
+            orig_shutdown()
+        except KeyboardInterrupt:
+            pass
+
+    threading._shutdown = silent_shutdown  # type: ignore[attr-defined]
+except AttributeError:
+    pass  #
