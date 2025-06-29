@@ -1,6 +1,6 @@
 <table align="center">
   <tr>
-    <td><img src="https://github.com/user-attachments/assets/f340a733-1423-4095-84e9-99c6f8aa2f32" width="130%"/></td>
+    <td><img src="https://github.com/user-attachments/assets/f340a733-1423-4095-84e9-99c6f8aa2f32" width="600"/></td>
     <td>
         <p size="20px">
           <strong>dotpusher</strong> - is a mini script written in Python that allows you to copy
