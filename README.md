@@ -9,7 +9,8 @@
 
     >> (Copyright (c) 2025 maaru.tan \ Marat Arzymatov. All Rights Reserved.)
 
-    #### **For example**
-    https://github.com/user-attachments/assets/8e081933-2f7b-4bb0-8c67-c18c6e7fb519
+#### **For example**
+
+https://github.com/user-attachments/assets/8e081933-2f7b-4bb0-8c67-c18c6e7fb519
 
 </div>
