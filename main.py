@@ -26,7 +26,7 @@ if __name__ == "__main__":
             f"\n\n{Col.YELLOW.value}[warn]{Col.RESET.value} {Col.RED.value}Canceled by user :D {Col.RESET.value}"
         )
         print(f"{Col.PURPLE.value}\n     ~~> cancel  ^^ {Col.RESET.value}")
-        sys.exit(130)
+        sys.exit(0)
     finally:
         for t in threading.enumerate():
             if t is not threading.main_thread():
