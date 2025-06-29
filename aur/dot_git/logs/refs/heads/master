@@ -1,0 +1,20 @@
+0000000000000000000000000000000000000000 d35590019f49d26262d6625fd0688e4694569f33 maaru <maratarzymatov288@gmail.com> 1751186355 +0600	clone: from ssh://aur.archlinux.org/dotpusher.git
+d35590019f49d26262d6625fd0688e4694569f33 9b987c038f6619ca09e6eb01ce4db29308a993e0 maaru <maratarzymatov288@gmail.com> 1751186887 +0600	commit: initial release
+9b987c038f6619ca09e6eb01ce4db29308a993e0 ee56e41c1d0e096d29c309de0aa706b4f12954c1 maaru <maratarzymatov288@gmail.com> 1751187956 +0600	commit: update packages buildes
+ee56e41c1d0e096d29c309de0aa706b4f12954c1 22f52e7626a6a9b48bd27b4b212ed59362682f9c maaru <maratarzymatov288@gmail.com> 1751188117 +0600	commit: fixed no valid sh256sum
+22f52e7626a6a9b48bd27b4b212ed59362682f9c 0312b5ec6acecd06b2cb40f606fd864d4176b824 maaru <maratarzymatov288@gmail.com> 1751188682 +0600	commit: fixed buildscheme
+0312b5ec6acecd06b2cb40f606fd864d4176b824 5192b9ba572ba2a2f72ea3f2cab7faf3864644da maaru <maratarzymatov288@gmail.com> 1751188761 +0600	commit: fixed buildscheme
+5192b9ba572ba2a2f72ea3f2cab7faf3864644da 09d5f161b2cc72f9914dbb2046e184eb2582623b maaru <maratarzymatov288@gmail.com> 1751189705 +0600	commit: fixed | sha256sums
+09d5f161b2cc72f9914dbb2046e184eb2582623b cf46380be09f20b73e42932386d24a35868fd402 maaru <maratarzymatov288@gmail.com> 1751189726 +0600	commit: fixed | sha256sums
+cf46380be09f20b73e42932386d24a35868fd402 176ebc5e9772e7a40b2253fe6d63fd4dbcc197b0 maaru <maratarzymatov288@gmail.com> 1751189986 +0600	commit: fixed | sha256sums
+176ebc5e9772e7a40b2253fe6d63fd4dbcc197b0 6f5d7178e5fb8e23869d098ca319c957bc2be9c5 maaru <maratarzymatov288@gmail.com> 1751191163 +0600	commit: fixed | package build
+6f5d7178e5fb8e23869d098ca319c957bc2be9c5 34102583ec425fddeb177de9f71291d3032e45ea maaru <maratarzymatov288@gmail.com> 1751191182 +0600	commit: fixed | package build
+34102583ec425fddeb177de9f71291d3032e45ea 3ad0f3c124b806d45d4aabb55f81241420480df8 maaru <maratarzymatov288@gmail.com> 1751192502 +0600	commit: fixed | cache
+3ad0f3c124b806d45d4aabb55f81241420480df8 01d3f57cc135da2a61f0dad061e5c816fe1746fd maaru <maratarzymatov288@gmail.com> 1751192630 +0600	commit: fixed | cache
+01d3f57cc135da2a61f0dad061e5c816fe1746fd bb2e3ad6e022e030d09dddafc3d174a5effb369d maaru <maratarzymatov288@gmail.com> 1751192725 +0600	commit: fixed | cache
+bb2e3ad6e022e030d09dddafc3d174a5effb369d f5328abb81972700d0244e35e287945a5465c798 maaru <maratarzymatov288@gmail.com> 1751192786 +0600	commit: fixed | cache
+f5328abb81972700d0244e35e287945a5465c798 48a98e52a1e9baecb52fa33bbd65ca18426ac7ba maaru <maratarzymatov288@gmail.com> 1751192878 +0600	commit: fixed | cache
+48a98e52a1e9baecb52fa33bbd65ca18426ac7ba e04f4e616a42546e212e3849f8f7f95c691fce10 maaru <maratarzymatov288@gmail.com> 1751192926 +0600	commit: fixed | cache
+e04f4e616a42546e212e3849f8f7f95c691fce10 8c3a98c424c54a9c0e4fe7b148a2f7aa10fae964 maaru <maratarzymatov288@gmail.com> 1751193255 +0600	commit: fixed | cache
+8c3a98c424c54a9c0e4fe7b148a2f7aa10fae964 f5235802c6803d91408ddf21001ce6a4d58c928b maaru <maratarzymatov288@gmail.com> 1751200087 +0600	commit: fixed | logic build
+f5235802c6803d91408ddf21001ce6a4d58c928b 1fe94d7ae1a44c502e678a161077a229550d1165 maaru <maratarzymatov288@gmail.com> 1751200425 +0600	commit: fixed | logic build
