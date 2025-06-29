@@ -12,8 +12,8 @@
 </table>
 
 <div align="center">
-  <h1 align="start">
-    DOTPUSHER<br/>  ━━━━━━━━━━━━➤
+  <h1 align="left">
+    <h4>━━━━━━━━━━━━➤</h4> DOTPUSHER<br/> <h4> ━━━━━━━━━━━━━━━━━━━━━━━━➤</h4>
   </h1>
   <h6> (Copyright (c) 2025 maaru.tan \ Marat Arzymatov. All Rights Reserved.)</h6> <br>
 
