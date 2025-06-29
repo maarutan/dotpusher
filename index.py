@@ -6,7 +6,10 @@ import sys
 
 sys.path.append("/usr/share/dotpusher")
 
-from module_imports import *
+from core.paths.handler import paths_handler
+from core.cli import Cli
+from modules.colors import Col
+import sys
 
 
 def main():
