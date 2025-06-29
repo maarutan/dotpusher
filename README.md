@@ -4,7 +4,7 @@
 
 <div align="center">
   <h1>
-    dotpusher
+    DOTPUSHER
   </h1>
 
   <p>
