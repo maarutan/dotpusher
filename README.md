@@ -4,7 +4,7 @@
 
 <div align="center">
   <h1 align="start">
-    DOTPUSHER<br/>  ──────────────→
+    DOTPUSHER<br/>  ──────────────➤
   </h1>
 
   <p>
