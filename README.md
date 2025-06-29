@@ -8,10 +8,10 @@
   </h1>
 
   <p>
-    > (Copyright (c) 2025 maaru.tan \ Marat Arzymatov. All Rights Reserved.)
-      dotpusher is a mini script written in Python that allows you to copy
-      [dotfiles] declaratively to the result directory and then push them to a
-      remote repository without imperative intervention.
+    <strong> > (Copyright (c) 2025 maaru.tan \ Marat Arzymatov. All Rights Reserved.)</strong>
+    dotpusher is a mini script written in Python that allows you to copy
+    [dotfiles] declaratively to the result directory and then push them to a
+    remote repository without imperative intervention.
   </p>
 
 #### **For example**
