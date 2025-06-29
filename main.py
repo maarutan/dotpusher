@@ -23,4 +23,4 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print(f"{Col.PURPLE.value}\n\n\n     ~~> cancel  ^^ {Col.RESET.value}")
-        sys.exit()
+        exit(130)
