@@ -2,11 +2,11 @@
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
 
-import sys
-import threading
+
 from core.paths.handler import paths_handler
 from core.cli import Cli
 from modules.colors import Col
+import sys
 
 
 def main():
@@ -23,27 +23,9 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         print(
-            f"\n\n{Col.YELLOW.value}[warn]{Col.RESET.value} {Col.RED.value}Canceled by user :D {Col.RESET.value}"
+            f"\n\n\n{Col.YELLOW.value}[warn]{Col.RESET.value} {Col.RED.value}Canceled by user{Col.RESET.value}"
         )
         print(f"{Col.PURPLE.value}\n     ~~> cancel  ^^ {Col.RESET.value}")
         sys.exit(0)
     finally:
-        for t in threading.enumerate():
-            if t is not threading.main_thread():
-                try:
-                    t.join(timeout=0.1)
-                except Exception:
-                    pass
-
-try:
-    orig_shutdown = threading._shutdown  # type: ignore[attr-defined]
-
-    def silent_shutdown():
-        try:
-            orig_shutdown()
-        except KeyboardInterrupt:
-            pass
-
-    threading._shutdown = silent_shutdown  # type: ignore[attr-defined]
-except AttributeError:
-    pass  #
+        sys.exit(0)
