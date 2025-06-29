@@ -7,7 +7,7 @@
     DOTPUSHER<br/>  ━━━━━━━━━━━━➤
   </h1>
 
-  <p font-size="20px">
+  <p size="20px">
     <h6> (Copyright (c) 2025 maaru.tan \ Marat Arzymatov. All Rights Reserved.)</h6> <br>
     dotpusher is a mini script written in Python that allows you to copy
     [dotfiles] declaratively to the result directory and then push them to a
