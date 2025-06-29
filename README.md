@@ -12,9 +12,9 @@
 </table>
 
 <p align="left">
-  <h3>━━━━━━━━━━━━➤__DOTPUSHER</h3>
-  <h3>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━➤</h3>
-</p>
+  <h3>━━━━━━━━━━➤DOTPUSHER</h3>
+  <h3>━━━━━━━━━━━━━━━━━━━➤<h3>
+</h3h3>
 
 <div align="center">
   <h6> (Copyright (c) 2025 maaru.tan \ Marat Arzymatov. All Rights Reserved.)</h6> <br>
