@@ -121,37 +121,6 @@ Structure:
 
 ---
 
-## 📦 Dependencies
-
-- Python 3.11+
-- Git
-
----
-
-## 📦 Installation
-
-### From AUR:
-
-```bash
-yay -S dotpusher
-```
-
-### Manual:
-
-```bash
-# Clone the repository
-git clone https://github.com/maarutan/dotpusher.git
-cd dotpusher
-```
-
-```bash
-sudo ./install.sh
-# To uninstall:
-sudo ./uninstall.sh
-```
-
----
-
 ## 📁 Assets Directory
 
 Derived from the config field:
@@ -182,6 +151,37 @@ Store:
 - `--push --force` for full overwrites
 - Use separate configs per system
 - Always check `dotpusher -h`
+
+---
+
+## 📦 Dependencies
+
+- Python 3.11+
+- Git
+
+---
+
+## 📦 Installation
+
+### From AUR:
+
+```bash
+yay -S dotpusher
+```
+
+### Manual:
+
+```bash
+# Clone the repository
+git clone https://github.com/maarutan/dotpusher.git
+cd dotpusher
+```
+
+```bash
+sudo ./install.sh
+# To uninstall:
+sudo ./uninstall.sh
+```
 
 ---
 
