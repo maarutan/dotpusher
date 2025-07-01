@@ -21,7 +21,7 @@
 ### 📎 Links
 
 - [What is `dotpusher`](#-what-is-dotpusher)
-- [Video Example](#dotpusher-demo-walkthrough-as-shown-in-the-video)
+- [Video Example](**-example-video**)
 - [Installation](#-installation)
 - [Dependencies](#-dependencies)
 
@@ -182,7 +182,7 @@ Store:
 ## 🎥 Dotpusher Demo Walkthrough (as shown in the video)
 
 **Example video:**
-[https://github.com/user-attachments/assets/8e081933-2f7b-4bb0-8c67-c18c6e7fb519](https://github.com/user-attachments/assets/8e081933-2f7b-4bb0-8c67-c18c6e7fb519)
+https://github.com/user-attachments/assets/8e081933-2f7b-4bb0-8c67-c18c6e7fb519
 
 ### Steps:
 
