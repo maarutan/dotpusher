@@ -27,12 +27,15 @@ class Cli:
         )
 
         self.parser.add_argument(
-            "-f", "--force", action="store_true", help="Force push"
+            "-f",
+            "--force",
+            action="store_true",
+            help="Force push (must be used with --push)",
         )
 
         argcomplete.autocomplete(self.parser)
         self.args = self.parser.parse_args()
-        self._conf_handler = None  # lazy init
+        self._conf_handler: ConfigHandler | None = None
 
     def get_config(self) -> Config:
         return Config(self.args.config)
@@ -43,13 +46,18 @@ class Cli:
         return self._conf_handler
 
     def run(self) -> None:
-        if self.args.sync:
+        if self.args.push:
+            if self.args.force:
+                from .commands.push import Push
+
+                Push().push(force=True)
+            else:
+                from .commands.push import Push
+
+                Push().push(force=False)
+        elif self.args.sync:
             from .commands.sync import Sync
 
             Sync().sync()
-        elif self.args.push:
-            from .commands.push import Push
-
-            Push().push(force=self.args.force)
         else:
             self.parser.print_help()
