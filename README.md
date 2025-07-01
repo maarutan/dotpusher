@@ -22,8 +22,8 @@
 
 - [What is `dotpusher`](#-what-is-dotpusher)
 - [Video Example](#-dotpusher-demo-walkthrough-as-shown-in-the-video)
-- [Installation](#-installation)
 - [Dependencies](#-dependencies)
+- [Installation](#-installation)
 
 ---
 
