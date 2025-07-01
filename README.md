@@ -21,7 +21,7 @@
 ### 📎 Links
 
 - [What is `dotpusher`](#-what-is-dotpusher)
-- [Video Example](**-example-video**)
+- [Video Example](#-example-video)
 - [Installation](#-installation)
 - [Dependencies](#-dependencies)
 
