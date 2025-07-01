@@ -106,12 +106,12 @@ Structure:
 ```
 ~/.config/dotpusher/dist/
 ├── dotfiles/
+    ├── .git
 │   ├── .themes/
 │   ├── Pictures/
 │   ├── .local/
 │   │   └── bin/
 │   └── ...
-├── .git
 ├── assets/
 │   └── dotfiles/
 │       ├── LICENSE
@@ -137,6 +137,12 @@ yay -S dotpusher
 ```
 
 ### Manual:
+
+```bash
+# Clone the repository
+git clone https://github.com/maarutan/dotpusher.git
+cd dotpusher
+```
 
 ```bash
 sudo ./install.sh
