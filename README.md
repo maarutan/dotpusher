@@ -85,6 +85,7 @@ $ dotpusher -p -f
 
 # Use custom config
 $ dotpusher -c <path-to-config>
+$ dotpusher -c <path-to-config> ( -s | -p | -p -f )
 
 # Display help
 $ dotpusher -h
