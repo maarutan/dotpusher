@@ -79,13 +79,14 @@ In the end, I show how all the files and directories defined in `config.jsonc` a
 
 This process makes it easy to declaratively manage and version your dotfiles using Git.
 
-# 📚 Dotpusher – Full Wiki
+<div align="left">
+    # 📚 Dotpusher – Full Wiki
 
-## 📌 What is Dotpusher?
+    ## 📌 What is Dotpusher?
 
 **Dotpusher** is a lightweight Python script that enables you to declaratively manage, sync, and version-control your dotfiles. It supports pushing to remote repositories, custom configurations, and dynamic directory structures.
 
----
+    ---
 
 ## ⚙ Configuration File: `config.jsonc`
 
@@ -222,17 +223,17 @@ Then the final structure becomes:
 ```
 ~/.config/dotpusher/dist/
 ├── dotfiles/
-    ├── .git
+├── .git
 │   ├── .themes/
 │   ├── Pictures/
 │   ├── .local/
 │   │   └── bin/
 │   └── ...
 └── assets/
-    └── dotfiles/
-        ├── LICENSE
-        ├── README.md
-        └── .gitignore
+└── dotfiles/
+├── LICENSE
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -298,4 +299,5 @@ Licensed under the terms defined in your repository. For more, see the [`LICENSE
 
 > Automate your dotfiles. Stay declarative. Be consistent.
 
+</div>
 </div>
