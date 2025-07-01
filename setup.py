@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="dotpusher",
-    version="0.1.0",
+    version="0.1.3",
     description="Dotpusher is a declarative method for synchronizing local files or directories with remote ones using git.",
     author="Marat Arzymatov",
     author_email="maratarzymatov288@gmail.com",
