@@ -212,5 +212,5 @@ See the [`LICENSE`](./LICENSE) file for terms.
 
 ---
 
-> Built with ❤️ by [maarutan](https://github.com/maarutan)
+> Built with ❤️ by [maarutan](https://github.com/maarutan)<br/>
 > Automate your dotfiles. Stay declarative. Be consistent.
